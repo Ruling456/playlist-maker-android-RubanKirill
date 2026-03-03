@@ -40,6 +40,10 @@ import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.compose.rememberNavController
+import com.example.playlistmaker.navigation.PlaylistHost
+
+
 import com.example.playlistmaker.ui.theme.PlaylistMakerTheme
 
 class MainActivity : ComponentActivity() {
@@ -47,11 +51,13 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             PlaylistMakerTheme {
-                MainScreen()
+                val navController = rememberNavController()
+                PlaylistHost(navController = navController)
             }
         }
     }
 }
+
 
 
 
@@ -90,7 +96,10 @@ fun MenuRow(
 }
 
 @Composable
-fun MainScreen(){
+fun MainScreen(
+    onNavigateToSearch: () -> Unit,
+    onNavigateToSettings: () -> Unit
+){
     val context = LocalContext.current
 
     Box(
@@ -120,10 +129,7 @@ fun MainScreen(){
             MenuRow(
                 text = stringResource(R.string.search),
                 icon = Icons.Default.Search,
-                onClick = {
-                    val intent = Intent(context, SearchActivity::class.java)
-                    context.startActivity(intent)
-                }
+                onClick = onNavigateToSearch
             )
 
             MenuRow(
@@ -145,61 +151,13 @@ fun MainScreen(){
             MenuRow(
                 text = stringResource(R.string.settings),
                 icon = Icons.Default.Settings,
-                onClick = {
-                    val intent = Intent(context, SettingsActivity::class.java)
-                    context.startActivity(intent)
-                }
+                onClick = onNavigateToSettings
             )
         }
     }
 }
 
 
-
-
-
-@Composable
-fun MainScreenOld(){
-    val context = LocalContext.current
-
-    Column(
-        modifier = Modifier.fillMaxSize().padding(bottom = 16.dp)
-    ) {
-        Text(
-            text = stringResource(R.string.app_name),
-            fontSize = 22.sp,
-            modifier = Modifier.padding(bottom = 20.dp)
-        )
-
-        Button(
-            onClick = {Toast.makeText(context, "Нажата кнопка \"Поиск\"", Toast.LENGTH_SHORT).show()},
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(vertical = 8.dp),
-        ) {
-            Text(text = stringResource(id = R.string.search))
-        }
-        Button(
-            onClick = {Toast.makeText(context, "Нажата кнопка\"Плейлисты\"", Toast.LENGTH_LONG).show()},
-            modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp),
-        ) {
-            Text(text = stringResource(R.string.playlists))
-        }
-        Button(
-            onClick = {Toast.makeText(context, "Нажата кнопка \"Избранное\"", Toast.LENGTH_SHORT).show()},
-            modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp),
-        ) {
-            Text(text = stringResource(R.string.favourites))
-        }
-        Button(
-            onClick = {Toast.makeText(context, "Нажата кнопка\"Настройки\"", Toast.LENGTH_SHORT).show()},
-            modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp),
-        ) {
-            Text(text = stringResource(R.string.settings))
-        }
-
-    }
-}
 
 
 
