@@ -16,17 +16,17 @@ class AllTracksViewModel(
     private val tracksRepository: TracksRepository,
 ) : ViewModel() {
 
-    private val _allTracksScreenState = MutableStateFlow<SearchState>(SearchState.Loading)
+    private val _allTracksScreenState = MutableStateFlow<SearchState>(SearchState.Searching)
     val allTracksScreenState = _allTracksScreenState.asStateFlow()
 
     fun fetchData(query: String = "") {
         viewModelScope.launch(Dispatchers.IO) {
             try {
-                _allTracksScreenState.update { SearchState.Loading }
+                _allTracksScreenState.update { SearchState.Searching }
                 val list = tracksRepository.searchTracks(query)
-                _allTracksScreenState.update { SearchState.Success(foundList = list) }
+                _allTracksScreenState.update { SearchState.Success(list = list) }
             } catch (e: Exception) {
-                _allTracksScreenState.update { SearchState.Error(e.message ?: "Unknown error") }
+                _allTracksScreenState.update { SearchState.Fail(e.message ?: "Unknown error") }
             }
         }
     }

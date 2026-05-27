@@ -1,7 +1,6 @@
 package com.example.playlistmaker.ui.search
 
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Arrangement // Добавлен импорт Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -28,45 +27,11 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.playlistmaker.R
-import com.example.playlistmaker.domain.Track
-
-@Composable
-fun TrackListItem(track: Track) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 8.dp),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.SpaceBetween
-    ) {
-        Image(
-            painter = painterResource(id = R.drawable.ic_music),
-            contentDescription = "Трек ${track.trackName}"
-        )
-        Column(
-            modifier = Modifier
-                .weight(1f)
-                .padding(start = 12.dp),
-            horizontalAlignment = Alignment.Start
-        ) {
-            Text(track.trackName, fontWeight = FontWeight.Bold)
-            Text(track.artistName)
-        }
-        Column(
-            modifier = Modifier.padding(start = 8.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Text(track.trackTime)
-        }
-    }
-}
 
 @Composable
 fun AllTracksScreen(
@@ -81,7 +46,6 @@ fun AllTracksScreen(
     }
 
     Column(modifier = modifier.fillMaxSize()) {
-        // Верхняя панель с кнопкой назад
         Row(
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier
@@ -106,46 +70,34 @@ fun AllTracksScreen(
             )
         }
 
-        // Контент экрана
         when (screenState) {
             is SearchState.Initial -> {}
-            is SearchState.Loading -> {
+            is SearchState.Searching -> {
                 Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                     CircularProgressIndicator()
                 }
             }
 
             is SearchState.Success -> {
-                val tracks = (screenState as SearchState.Success).foundList
+                val tracks = (screenState as SearchState.Success).list
                 LazyColumn(
                     modifier = Modifier.fillMaxSize(),
                     contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
                     verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
                     items(tracks.size) { index ->
-                        TrackListItem(track = tracks[index])
+                        TrackItem(track = tracks[index])
                         HorizontalDivider(thickness = 0.5.dp)
                     }
                 }
             }
 
-            is SearchState.Error -> {
-                val error = (screenState as SearchState.Error).error
+            is SearchState.Fail -> {
+                val error = (screenState as SearchState.Fail).error
                 Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                     Text("Ошибка: $error", color = Color.Red)
                 }
             }
         }
     }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun PreviewTrackListItem() {
-    val track = Track(
-        trackName = "Владивосток 2000",
-        artistName = "Мумий Тролль",
-        trackTime = "2:38"
-    )
-    TrackListItem(track)
 }

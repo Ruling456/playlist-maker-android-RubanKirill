@@ -1,20 +1,17 @@
 package com.example.playlistmaker.navigation
 
-import android.content.Intent
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.platform.LocalContext
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.example.playlistmaker.ui.activity.MainScreen
-import com.example.playlistmaker.SearchScreen
+import com.example.playlistmaker.ui.search.SearchScreen
 import com.example.playlistmaker.SettingsScreen
-import com.example.playlistmaker.ui.search.AllTracksActivity
+import com.example.playlistmaker.ui.search.SearchViewModel
 
 @Composable
 fun PlaylistHost(navController: NavHostController) {
-    val context = LocalContext.current
-    
     NavHost(
         navController = navController,
         startDestination = Screen.Main.name
@@ -22,8 +19,7 @@ fun PlaylistHost(navController: NavHostController) {
         composable(Screen.Main.name) {
             MainScreen(
                 onNavigateToSearch = {
-                    val intent = Intent(context, AllTracksActivity::class.java)
-                    context.startActivity(intent)
+                    navController.navigate(Screen.Search.name)
                 },
                 onNavigateToSettings = {
                     navController.navigate(Screen.Settings.name)
@@ -32,10 +28,12 @@ fun PlaylistHost(navController: NavHostController) {
         }
 
         composable(Screen.Search.name) {
+            val searchViewModel: SearchViewModel = viewModel(
+                factory = SearchViewModel.getViewModelFactory()
+            )
             SearchScreen(
-                onBackPressed = {
-                    navController.popBackStack()
-                }
+                viewModel = searchViewModel,
+                onBackPressed = { navController.popBackStack() }
             )
         }
 
