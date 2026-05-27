@@ -1,4 +1,4 @@
-package com.example.playlistmaker
+package com.example.playlistmaker.ui.activity
 
 import android.content.Intent
 import android.os.Bundle
@@ -41,6 +41,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.compose.rememberNavController
+import com.example.playlistmaker.R
 import com.example.playlistmaker.navigation.PlaylistHost
 
 
@@ -156,8 +157,3 @@ fun MainScreen(
         }
     }
 }
-
-
-
-
-
