@@ -1,16 +1,18 @@
 package com.example.playlistmaker.data
 
-import com.example.playlistmaker.creator.Storage
+import com.example.playlistmaker.data.network.ItunesApi
 import com.example.playlistmaker.domain.NetworkClient
 
-class RetrofitNetworkClient(private val storage: Storage) : NetworkClient {
+class RetrofitNetworkClient(private val itunesApi: ItunesApi) : NetworkClient {
 
-    override fun doRequest(dto: Any): BaseResponse {
-        if (dto is TracksSearchRequest) {
-            val searchList = storage.search(dto.expression)
-            return TracksSearchResponse(searchList).apply { resultCode = 200 }
-        } else {
+    override suspend fun doRequest(dto: Any): BaseResponse {
+        if (dto !is TracksSearchRequest) {
             return BaseResponse().apply { resultCode = 400 }
+        }
+        return try {
+            itunesApi.search(dto.expression).apply { resultCode = 200 }
+        } catch (e: Exception) {
+            BaseResponse().apply { resultCode = 500 }
         }
     }
 }

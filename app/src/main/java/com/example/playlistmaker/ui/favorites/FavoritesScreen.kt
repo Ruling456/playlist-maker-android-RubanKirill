@@ -17,16 +17,16 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.playlistmaker.ui.playlists.PlaylistsViewModel
 import com.example.playlistmaker.ui.search.TrackItem
+import org.koin.androidx.compose.koinViewModel
 
 @Composable
 fun FavoritesScreen(
     modifier: Modifier = Modifier,
     onBackPressed: () -> Unit = {},
     onNavigateToTrack: (String) -> Unit = {},
-    playlistsViewModel: PlaylistsViewModel = viewModel()
+    playlistsViewModel: PlaylistsViewModel = koinViewModel()
 ) {
     val favoritesList by playlistsViewModel.favoriteList.collectAsState(initial = emptyList())
 

@@ -18,41 +18,34 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
-import com.example.playlistmaker.R
-import com.example.playlistmaker.domain.Playlist
 import com.example.playlistmaker.domain.Track
+import com.example.playlistmaker.domain.TracksRepository
 import com.example.playlistmaker.ui.playlists.PlaylistsViewModel
 import com.example.playlistmaker.ui.playlists.PlaylistListItem
-import com.example.playlistmaker.creator.Creator
+import org.koin.androidx.compose.koinViewModel
+import org.koin.compose.koinInject
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TrackDetailScreen(
     trackId: String,
     onBackPressed: () -> Unit = {},
-    playlistsViewModel: PlaylistsViewModel = androidx.lifecycle.viewmodel.compose.viewModel()
+    playlistsViewModel: PlaylistsViewModel = koinViewModel(),
+    tracksRepository: TracksRepository = koinInject()
 ) {
     val playlists by playlistsViewModel.playlists.collectAsState(emptyList())
-    
-    // Simplistic state
     var currentTrack by remember { mutableStateOf<Track?>(null) }
-    
-    LaunchedEffect(trackId) {
-        val tracksRep = Creator.getTracksRepository()
-        // Wait, trackId is string. Let's find it.
-        // As a mock, we can search by empty to get all and find.
-        val search = tracksRep.searchTracks("")
-        currentTrack = search.find { it.trackId == trackId }
-    }
-    
-    val track = currentTrack
 
+    LaunchedEffect(trackId) {
+        currentTrack = tracksRepository.getTrackById(trackId)
+    }
+
+    val track = currentTrack
     var showBottomSheet by remember { mutableStateOf(false) }
 
     Box(
@@ -137,7 +130,11 @@ fun TrackDetailScreen(
                             },
                         contentAlignment = Alignment.Center
                     ) {
-                        Icon(if (track.favorite) Icons.Filled.Favorite else Icons.Filled.FavoriteBorder, contentDescription = "Favorite", tint = if (track.favorite) Color.Red else Color.Gray)
+                        Icon(
+                            if (track.favorite) Icons.Filled.Favorite else Icons.Filled.FavoriteBorder,
+                            contentDescription = "Favorite",
+                            tint = if (track.favorite) Color.Red else Color.Gray
+                        )
                     }
                 }
 
@@ -148,19 +145,11 @@ fun TrackDetailScreen(
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Text(
-                        text = "Duration",
-                        fontSize = 14.sp,
-                        color = Color.Gray
-                    )
-                    Text(
-                        text = track.trackTime,
-                        fontSize = 14.sp,
-                        color = Color.Black
-                    )
+                    Text(text = "Duration", fontSize = 14.sp, color = Color.Gray)
+                    Text(text = track.trackTime, fontSize = 14.sp, color = Color.Black)
                 }
             }
-            
+
             if (showBottomSheet) {
                 val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 

@@ -3,14 +3,28 @@ package com.example.playlistmaker.data
 import com.example.playlistmaker.domain.NetworkClient
 import com.example.playlistmaker.domain.Track
 import com.example.playlistmaker.domain.TracksRepository
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 
-class TracksRepositoryImpl(private val database: DatabaseMock) : TracksRepository {
+class TracksRepositoryImpl(
+    private val database: DatabaseMock,
+    private val networkClient: NetworkClient
+) : TracksRepository {
+
+    private val searchCache = mutableMapOf<String, Track>()
 
     override suspend fun searchTracks(expression: String): List<Track> {
-        delay(1000)
-        return database.searchTracks(expression)
+        val response = networkClient.doRequest(TracksSearchRequest(expression))
+        return if (response is TracksSearchResponse && response.resultCode == 200) {
+            val tracks = response.results.map { it.toTrack() }
+            tracks.forEach { searchCache[it.trackId] = it }
+            tracks
+        } else {
+            emptyList()
+        }
+    }
+
+    override suspend fun getTrackById(id: String): Track? {
+        return database.getTrackById(id) ?: searchCache[id]
     }
 
     override fun getTrackByNameAndArtist(track: Track): Flow<Track?> {

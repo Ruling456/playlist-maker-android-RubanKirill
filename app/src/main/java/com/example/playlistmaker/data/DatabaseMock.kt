@@ -89,6 +89,8 @@ class DatabaseMock(
         tracks.removeIf { it.playlistId == playlistId }
     }
 
+    fun getTrackById(id: String): Track? = tracks.find { it.trackId == id }
+
     fun searchTracks(expression: String): List<Track> {
         val allTrackIdsInDb = tracks.map { it.trackId }
         val mockedTracks = listOf(

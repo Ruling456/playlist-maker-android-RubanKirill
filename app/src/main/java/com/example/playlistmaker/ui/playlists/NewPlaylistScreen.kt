@@ -12,13 +12,13 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.playlistmaker.R
-import androidx.lifecycle.viewmodel.compose.viewModel
+import org.koin.androidx.compose.koinViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun NewPlaylistScreen(
     onBackPressed: () -> Unit,
-    playlistsViewModel: PlaylistsViewModel = viewModel()
+    playlistsViewModel: PlaylistsViewModel = koinViewModel()
 ) {
     var name by remember { mutableStateOf("") }
     var description by remember { mutableStateOf("") }

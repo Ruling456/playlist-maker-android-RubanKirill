@@ -2,18 +2,20 @@ package com.example.playlistmaker.ui.playlists
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.playlistmaker.creator.Creator
 import com.example.playlistmaker.domain.Playlist
+import com.example.playlistmaker.domain.PlaylistsRepository
 import com.example.playlistmaker.domain.Track
+import com.example.playlistmaker.domain.TracksRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.flow.firstOrNull
 
-class PlaylistsViewModel() : ViewModel() {
-    private val playlistsRepository = Creator.getPlaylistsRepository()
-    private val tracksRepository = Creator.getTracksRepository()
+class PlaylistsViewModel(
+    private val playlistsRepository: PlaylistsRepository,
+    private val tracksRepository: TracksRepository
+) : ViewModel() {
 
     val playlists: Flow<List<Playlist>> = flow {
         val collectedPlaylists = mutableListOf<Playlist>()

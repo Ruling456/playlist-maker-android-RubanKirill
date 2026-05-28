@@ -50,7 +50,7 @@ fun PlaylistListItem(playlist: Playlist, onClick: () -> Unit) {
 @Composable
 fun PlaylistsScreen(
     modifier: Modifier = Modifier,
-    playlistsViewModel: PlaylistsViewModel = androidx.lifecycle.viewmodel.compose.viewModel(),
+    playlistsViewModel: PlaylistsViewModel = org.koin.androidx.compose.koinViewModel(),
     addNewPlaylist: () -> Unit = {},
     navigateToPlaylist: (Long) -> Unit = {},
     navigateBack: () -> Unit = {}
