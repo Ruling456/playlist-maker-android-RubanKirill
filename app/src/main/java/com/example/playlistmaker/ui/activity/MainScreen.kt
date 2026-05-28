@@ -61,7 +61,8 @@ fun MenuRow(
 fun MainScreen(
     onNavigateToSearch: () -> Unit,
     onNavigateToSettings: () -> Unit,
-    onNavigateToPlaylists: () -> Unit
+    onNavigateToPlaylists: () -> Unit,
+    onNavigateToFavorites: () -> Unit
 ){
     val context = LocalContext.current
 
@@ -104,9 +105,7 @@ fun MainScreen(
             MenuRow(
                 text = stringResource(R.string.favourites),
                 icon = Icons.Default.FavoriteBorder,
-                onClick = {
-                    Toast.makeText(context, "Нажата кнопка \"Избранное\"", Toast.LENGTH_SHORT).show()
-                }
+                onClick = onNavigateToFavorites
             )
 
             MenuRow(

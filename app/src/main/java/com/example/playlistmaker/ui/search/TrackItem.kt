@@ -32,13 +32,14 @@ import com.example.playlistmaker.domain.Track
 @Composable
 fun TrackItem(
     track: Track,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onClick: () -> Unit = {}
 ) {
     Row(
         modifier = modifier
             .fillMaxWidth()
             .padding(horizontal = 16.dp, vertical = 8.dp)
-            .clickable { /* TODO: Обработка клика */ },
+            .clickable { onClick() },
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween
     ) {

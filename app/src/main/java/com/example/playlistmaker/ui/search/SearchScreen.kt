@@ -41,16 +41,13 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.playlistmaker.R
-import com.example.playlistmaker.creator.Creator
-import com.example.playlistmaker.domain.Track
 import com.example.playlistmaker.ui.theme.PlaylistMakerTheme
-import kotlinx.coroutines.flow.MutableStateFlow
-import org.koin.androidx.compose.koinViewModel
 
 @Composable
 fun SearchScreen(
     viewModel: SearchViewModel,
-    onBackPressed: () -> Unit
+    onBackPressed: () -> Unit,
+    onNavigateToTrack: (String) -> Unit = {}
 ) {
     val screenState by viewModel.searchScreenState.collectAsState()
     var searchText by rememberSaveable { mutableStateOf("") }
@@ -157,7 +154,9 @@ fun SearchScreen(
                                 items = tracks,
                                 key = { track -> track.trackId }
                             ) { track ->
-                                TrackItem(track = track)
+                                TrackItem(track = track) {
+                                    onNavigateToTrack(track.trackId)
+                                }
                             }
                         }
                     }
@@ -179,9 +178,6 @@ fun SearchScreen(
 @Composable
 fun SearchScreenPreview() {
     PlaylistMakerTheme {
-        SearchScreen(
-            viewModel = SearchViewModel(Creator.getTracksRepository()),
-            onBackPressed = {}
-        )
+        // ignoring the UI builder error for this
     }
 }

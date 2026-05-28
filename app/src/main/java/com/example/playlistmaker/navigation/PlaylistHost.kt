@@ -7,8 +7,11 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.example.playlistmaker.ui.activity.MainScreen
 import com.example.playlistmaker.ui.playlists.PlaylistsScreen
-import com.example.playlistmaker.ui.search.SearchScreen
+import com.example.playlistmaker.ui.playlists.NewPlaylistScreen
+import com.example.playlistmaker.ui.track.TrackDetailScreen
+import com.example.playlistmaker.ui.favorites.FavoritesScreen
 import com.example.playlistmaker.SettingsScreen
+import com.example.playlistmaker.ui.search.SearchScreen
 import com.example.playlistmaker.ui.search.SearchViewModel
 
 @Composable
@@ -27,12 +30,40 @@ fun PlaylistHost(navController: NavHostController) {
                 },
                 onNavigateToPlaylists = {
                     navController.navigate(Screen.Playlists.name)
+                },
+                onNavigateToFavorites = {
+                    navController.navigate("Favorites")
                 }
             )
         }
 
         composable(Screen.Playlists.name) {
             PlaylistsScreen(
+                navigateBack = { navController.popBackStack() },
+                addNewPlaylist = { navController.navigate("NewPlaylist") },
+                navigateToPlaylist = {  } // TODO navigate to playlist detail
+            )
+        }
+
+        composable("NewPlaylist") {
+            NewPlaylistScreen(
+                onBackPressed = { navController.popBackStack() }
+            )
+        }
+
+        composable("Favorites") {
+            FavoritesScreen(
+                onBackPressed = { navController.popBackStack() },
+                onNavigateToTrack = { trackId ->
+                    navController.navigate("TrackDetail/$trackId")
+                }
+            )
+        }
+
+        composable("TrackDetail/{trackId}") { backStackEntry ->
+            val trackId = backStackEntry.arguments?.getString("trackId") ?: ""
+            TrackDetailScreen(
+                trackId = trackId,
                 onBackPressed = { navController.popBackStack() }
             )
         }
@@ -43,7 +74,10 @@ fun PlaylistHost(navController: NavHostController) {
             )
             SearchScreen(
                 viewModel = searchViewModel,
-                onBackPressed = { navController.popBackStack() }
+                onBackPressed = { navController.popBackStack() },
+                onNavigateToTrack = { trackId ->
+                    navController.navigate("TrackDetail/$trackId")
+                }
             )
         }
 
