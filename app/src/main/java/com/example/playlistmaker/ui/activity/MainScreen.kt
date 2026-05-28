@@ -60,7 +60,8 @@ fun MenuRow(
 @Composable
 fun MainScreen(
     onNavigateToSearch: () -> Unit,
-    onNavigateToSettings: () -> Unit
+    onNavigateToSettings: () -> Unit,
+    onNavigateToPlaylists: () -> Unit
 ){
     val context = LocalContext.current
 
@@ -97,9 +98,7 @@ fun MainScreen(
             MenuRow(
                 text = stringResource(R.string.playlists),
                 icon = ImageVector.vectorResource(R.drawable.ic_library_music),
-                onClick = {
-                    Toast.makeText(context, "Нажата кнопка \"Плейлисты\"", Toast.LENGTH_SHORT).show()
-                }
+                onClick = onNavigateToPlaylists
             )
 
             MenuRow(
