@@ -48,7 +48,13 @@ class DatabaseMock(
     }
 
     fun getPlaylist(id: Long): Flow<Playlist?> = flow {
-        emit(playlists.find { it.id == id })
+        val playlist = playlists.find { it.id == id }
+        if (playlist == null) {
+            emit(null)
+            return@flow
+        }
+        val playlistTracks = tracks.filter { it.playlistId == id }
+        emit(playlist.copy(tracks = playlistTracks))
     }
 
     fun addNewPlaylist(name: String, description: String) {

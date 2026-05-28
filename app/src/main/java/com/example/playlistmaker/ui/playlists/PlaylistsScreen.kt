@@ -1,5 +1,6 @@
 package com.example.playlistmaker.ui.playlists
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -8,21 +9,22 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.MusicNote
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.playlistmaker.R
 import com.example.playlistmaker.domain.Playlist
-import androidx.compose.runtime.collectAsState
-import androidx.compose.foundation.Image
-import androidx.compose.ui.graphics.ColorFilter
 
 @Composable
 fun PlaylistListItem(playlist: Playlist, onClick: () -> Unit) {
@@ -35,14 +37,14 @@ fun PlaylistListItem(playlist: Playlist, onClick: () -> Unit) {
     ) {
         Image(
             modifier = Modifier.size(48.dp),
-            painter = painterResource(id = R.drawable.ic_music),
+            imageVector = Icons.Default.MusicNote,
             contentDescription = playlist.name,
             colorFilter = ColorFilter.tint(Color.Gray)
         )
         Spacer(Modifier.width(16.dp))
         Column(modifier = Modifier.weight(1f)) {
             Text(playlist.name, fontSize = 16.sp, color = Color.Black)
-            Text("${playlist.tracks.size} tracks", fontSize = 12.sp, color = Color.Gray)
+            Text(stringResource(R.string.tracks_count, playlist.tracks.size), fontSize = 12.sp, color = Color.Gray)
         }
     }
 }
@@ -69,14 +71,14 @@ fun PlaylistsScreen(
             ) {
                 Icon(
                     imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                    contentDescription = "Назад",
+                    contentDescription = stringResource(R.string.back),
                     modifier = Modifier
                         .padding(horizontal = 16.dp)
                         .size(24.dp)
                         .clickable { navigateBack() }
                 )
                 Text(
-                    text = "Playlists",
+                    text = stringResource(R.string.playlists),
                     style = MaterialTheme.typography.titleLarge.copy(
                         fontSize = 22.sp,
                         fontWeight = FontWeight.Medium,
@@ -95,7 +97,7 @@ fun PlaylistsScreen(
             ) {
                 Icon(
                     imageVector = Icons.Filled.Add,
-                    contentDescription = "Add playlist",
+                    contentDescription = stringResource(R.string.add_playlist),
                     modifier = Modifier.size(32.dp)
                 )
             }
@@ -109,7 +111,7 @@ fun PlaylistsScreen(
         ) {
             if (playlists.isEmpty()) {
                 Text(
-                    text = "No playlists found",
+                    text = stringResource(R.string.no_playlists),
                     color = Color.Gray,
                     modifier = Modifier.align(Alignment.Center)
                 )

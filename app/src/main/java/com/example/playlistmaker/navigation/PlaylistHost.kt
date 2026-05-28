@@ -5,6 +5,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.example.playlistmaker.ui.activity.MainScreen
+import com.example.playlistmaker.ui.playlists.PlaylistDetailScreen
 import com.example.playlistmaker.ui.playlists.PlaylistsScreen
 import com.example.playlistmaker.ui.playlists.NewPlaylistScreen
 import com.example.playlistmaker.ui.track.TrackDetailScreen
@@ -41,7 +42,17 @@ fun PlaylistHost(navController: NavHostController) {
             PlaylistsScreen(
                 navigateBack = { navController.popBackStack() },
                 addNewPlaylist = { navController.navigate("NewPlaylist") },
-                navigateToPlaylist = {}
+                navigateToPlaylist = { id -> navController.navigate("PlaylistDetail/$id") }
+            )
+        }
+
+        composable("PlaylistDetail/{playlistId}") { backStackEntry ->
+            val playlistId = backStackEntry.arguments?.getString("playlistId")?.toLongOrNull() ?: 0L
+            PlaylistDetailScreen(
+                playlistId = playlistId,
+                onBackPressed = { navController.popBackStack() },
+                onNavigateToTrack = { trackId -> navController.navigate("TrackDetail/$trackId") },
+                onNavigateToEdit = { /* TODO: экран редактирования плейлиста */ }
             )
         }
 

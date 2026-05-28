@@ -1,7 +1,8 @@
 package com.example.playlistmaker.ui.search
 
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -24,6 +25,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -32,17 +34,22 @@ import coil.compose.AsyncImage
 import com.example.playlistmaker.R
 import com.example.playlistmaker.domain.Track
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun TrackItem(
     track: Track,
     modifier: Modifier = Modifier,
+    onLongClick: (() -> Unit)? = null,
     onClick: () -> Unit = {}
 ) {
     Row(
         modifier = modifier
             .fillMaxWidth()
             .padding(horizontal = 16.dp, vertical = 8.dp)
-            .clickable { onClick() },
+            .combinedClickable(
+                onClick = onClick,
+                onLongClick = onLongClick
+            ),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
@@ -56,7 +63,7 @@ fun TrackItem(
             if (track.artworkUrl100.isNotEmpty()) {
                 AsyncImage(
                     model = track.artworkUrl100,
-                    contentDescription = "Обложка трека ${track.trackName}",
+                    contentDescription = stringResource(R.string.track_cover_description, track.trackName),
                     modifier = Modifier.fillMaxSize(),
                     contentScale = ContentScale.Crop,
                     error = painterResource(id = R.drawable.ic_music)
@@ -64,7 +71,7 @@ fun TrackItem(
             } else {
                 Icon(
                     painter = painterResource(id = R.drawable.ic_music),
-                    contentDescription = "Обложка трека ${track.trackName}",
+                    contentDescription = stringResource(R.string.track_cover_description, track.trackName),
                     modifier = Modifier.size(28.dp),
                     tint = Color(0xFF8B8F92)
                 )

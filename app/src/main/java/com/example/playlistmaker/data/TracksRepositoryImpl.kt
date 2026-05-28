@@ -1,12 +1,18 @@
 package com.example.playlistmaker.data
 
+import com.example.playlistmaker.data.db.SearchHistoryEntity
+import com.example.playlistmaker.data.db.SearchHistoryDao
+import com.example.playlistmaker.data.db.TrackDao
+import com.example.playlistmaker.data.db.toEntity
 import com.example.playlistmaker.domain.NetworkClient
 import com.example.playlistmaker.domain.Track
 import com.example.playlistmaker.domain.TracksRepository
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 
 class TracksRepositoryImpl(
-    private val database: DatabaseMock,
+    private val trackDao: TrackDao,
+    private val searchHistoryDao: SearchHistoryDao,
     private val networkClient: NetworkClient
 ) : TracksRepository {
 
@@ -24,30 +30,41 @@ class TracksRepositoryImpl(
     }
 
     override suspend fun getTrackById(id: String): Track? {
-        return database.getTrackById(id) ?: searchCache[id]
+        return trackDao.getTrackById(id)?.toDomain() ?: searchCache[id]
     }
 
     override fun getTrackByNameAndArtist(track: Track): Flow<Track?> {
-        return database.getTrackByNameAndArtist(track)
-    }
-
-    override suspend fun insertTrackToPlaylist(track: Track, playlistId: Long) {
-        database.insertTrack(track.copy(playlistId = playlistId))
-    }
-
-    override suspend fun deleteTrackFromPlaylist(track: Track) {
-        database.insertTrack(track.copy(playlistId = 0))
-    }
-
-    override suspend fun updateTrackFavoriteStatus(track: Track, isFavorite: Boolean) {
-        database.insertTrack(track.copy(favorite = isFavorite))
-    }
-
-    override fun deleteTracksByPlaylistId(playlistId: Long) {
-        database.deleteTracksByPlaylistId(playlistId)
+        return trackDao.getTrackByNameAndArtist(track.trackName, track.artistName)
+            .map { it?.toDomain() }
     }
 
     override fun getFavoriteTracks(): Flow<List<Track>> {
-        return database.getFavoriteTracks()
+        return trackDao.getFavoriteTracks().map { list -> list.map { it.toDomain() } }
+    }
+
+    override suspend fun insertTrackToPlaylist(track: Track, playlistId: Long) {
+        trackDao.upsertTrack(track.copy(playlistId = playlistId).toEntity())
+    }
+
+    override suspend fun deleteTrackFromPlaylist(track: Track) {
+        trackDao.removeFromPlaylist(track.trackId)
+    }
+
+    override suspend fun updateTrackFavoriteStatus(track: Track, isFavorite: Boolean) {
+        trackDao.upsertTrack(track.copy(favorite = isFavorite).toEntity())
+    }
+
+    override suspend fun deleteTracksByPlaylistId(playlistId: Long) {
+        trackDao.deleteNonFavoriteTracksByPlaylistId(playlistId)
+        trackDao.clearPlaylistIdForFavoriteTracks(playlistId)
+    }
+
+    override suspend fun addToSearchHistory(query: String) {
+        searchHistoryDao.deleteByQuery(query)
+        searchHistoryDao.insert(SearchHistoryEntity(query = query))
+    }
+
+    override fun getSearchHistory(): Flow<List<String>> {
+        return searchHistoryDao.getRecentHistory().map { list -> list.map { it.query } }
     }
 }

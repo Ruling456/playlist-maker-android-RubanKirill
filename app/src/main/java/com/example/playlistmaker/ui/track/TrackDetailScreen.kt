@@ -18,11 +18,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
+import com.example.playlistmaker.R
 import com.example.playlistmaker.domain.Track
 import com.example.playlistmaker.domain.TracksRepository
 import com.example.playlistmaker.ui.playlists.PlaylistsViewModel
@@ -68,7 +70,7 @@ fun TrackDetailScreen(
                 ) {
                     Icon(
                         imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                        contentDescription = "Back",
+                        contentDescription = stringResource(R.string.back),
                         modifier = Modifier
                             .size(24.dp)
                             .clickable { onBackPressed() },
@@ -115,7 +117,11 @@ fun TrackDetailScreen(
                             .clickable { showBottomSheet = true },
                         contentAlignment = Alignment.Center
                     ) {
-                        Icon(Icons.Filled.Add, contentDescription = "Add", tint = Color.Gray)
+                        Icon(
+                            Icons.Filled.Add,
+                            contentDescription = stringResource(R.string.add_to_playlist),
+                            tint = Color.Gray
+                        )
                     }
 
                     Box(
@@ -132,7 +138,7 @@ fun TrackDetailScreen(
                     ) {
                         Icon(
                             if (track.favorite) Icons.Filled.Favorite else Icons.Filled.FavoriteBorder,
-                            contentDescription = "Favorite",
+                            contentDescription = stringResource(R.string.favorite_description),
                             tint = if (track.favorite) Color.Red else Color.Gray
                         )
                     }
@@ -145,7 +151,7 @@ fun TrackDetailScreen(
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Text(text = "Duration", fontSize = 14.sp, color = Color.Gray)
+                    Text(text = stringResource(R.string.duration), fontSize = 14.sp, color = Color.Gray)
                     Text(text = track.trackTime, fontSize = 14.sp, color = Color.Black)
                 }
             }
@@ -160,7 +166,7 @@ fun TrackDetailScreen(
                 ) {
                     Column(modifier = Modifier.fillMaxWidth().padding(bottom = 32.dp)) {
                         Text(
-                            text = "Add to playlist",
+                            text = stringResource(R.string.add_to_playlist),
                             fontSize = 18.sp,
                             fontWeight = FontWeight.Medium,
                             color = Color.Black,

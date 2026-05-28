@@ -8,28 +8,21 @@ import com.example.playlistmaker.domain.Track
 import com.example.playlistmaker.domain.TracksRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.launch
 
 class PlaylistsViewModel(
     private val playlistsRepository: PlaylistsRepository,
     private val tracksRepository: TracksRepository
 ) : ViewModel() {
 
-    val playlists: Flow<List<Playlist>> = flow {
-        val collectedPlaylists = mutableListOf<Playlist>()
-        playlistsRepository.getAllPlaylists().collect { playlist ->
-            collectedPlaylists.addAll(playlist)
-            emit(collectedPlaylists.toList())
-        }
-    }
+    val playlists: Flow<List<Playlist>> = playlistsRepository.getAllPlaylists()
 
     val favoriteList: Flow<List<Track>> = tracksRepository.getFavoriteTracks()
 
-    fun createNewPlayList(namePlaylist: String, description: String) {
+    fun createNewPlayList(namePlaylist: String, description: String, coverUri: String? = null) {
         viewModelScope.launch(Dispatchers.IO) {
-            playlistsRepository.addNewPlaylist(namePlaylist, description)
+            playlistsRepository.addNewPlaylist(namePlaylist, description, coverUri)
         }
     }
 
