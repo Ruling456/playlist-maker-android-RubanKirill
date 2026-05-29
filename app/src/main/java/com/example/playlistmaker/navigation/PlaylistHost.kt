@@ -1,14 +1,19 @@
 package com.example.playlistmaker.navigation
 
 import androidx.compose.runtime.Composable
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.example.playlistmaker.ui.activity.MainScreen
+import com.example.playlistmaker.ui.playlists.PlaylistDetailScreen
+import com.example.playlistmaker.ui.playlists.PlaylistsScreen
+import com.example.playlistmaker.ui.playlists.NewPlaylistScreen
+import com.example.playlistmaker.ui.track.TrackDetailScreen
+import com.example.playlistmaker.ui.favorites.FavoritesScreen
+import com.example.playlistmaker.ui.settings.SettingsScreen
 import com.example.playlistmaker.ui.search.SearchScreen
-import com.example.playlistmaker.SettingsScreen
 import com.example.playlistmaker.ui.search.SearchViewModel
+import org.koin.androidx.compose.koinViewModel
 
 @Composable
 fun PlaylistHost(navController: NavHostController) {
@@ -23,17 +28,65 @@ fun PlaylistHost(navController: NavHostController) {
                 },
                 onNavigateToSettings = {
                     navController.navigate(Screen.Settings.name)
+                },
+                onNavigateToPlaylists = {
+                    navController.navigate(Screen.Playlists.name)
+                },
+                onNavigateToFavorites = {
+                    navController.navigate("Favorites")
                 }
             )
         }
 
-        composable(Screen.Search.name) {
-            val searchViewModel: SearchViewModel = viewModel(
-                factory = SearchViewModel.getViewModelFactory()
+        composable(Screen.Playlists.name) {
+            PlaylistsScreen(
+                navigateBack = { navController.popBackStack() },
+                addNewPlaylist = { navController.navigate("NewPlaylist") },
+                navigateToPlaylist = { id -> navController.navigate("PlaylistDetail/$id") }
             )
+        }
+
+        composable("PlaylistDetail/{playlistId}") { backStackEntry ->
+            val playlistId = backStackEntry.arguments?.getString("playlistId")?.toLongOrNull() ?: 0L
+            PlaylistDetailScreen(
+                playlistId = playlistId,
+                onBackPressed = { navController.popBackStack() },
+                onNavigateToTrack = { trackId -> navController.navigate("TrackDetail/$trackId") },
+                onNavigateToEdit = { /* TODO: экран редактирования плейлиста */ }
+            )
+        }
+
+        composable("NewPlaylist") {
+            NewPlaylistScreen(
+                onBackPressed = { navController.popBackStack() }
+            )
+        }
+
+        composable("Favorites") {
+            FavoritesScreen(
+                onBackPressed = { navController.popBackStack() },
+                onNavigateToTrack = { trackId ->
+                    navController.navigate("TrackDetail/$trackId")
+                }
+            )
+        }
+
+        composable("TrackDetail/{trackId}") { backStackEntry ->
+            val trackId = backStackEntry.arguments?.getString("trackId") ?: ""
+            TrackDetailScreen(
+                trackId = trackId,
+                onBackPressed = { navController.popBackStack() }
+            )
+        }
+
+        composable(Screen.Search.name) {
+            val searchViewModel: SearchViewModel = koinViewModel()
             SearchScreen(
                 viewModel = searchViewModel,
-                onBackPressed = { navController.popBackStack() }
+                onBackPressed = { navController.popBackStack() },
+                onNavigateToTrack = { trackId ->
+                    navController.navigate("TrackDetail/$trackId")
+                }
             )
         }
 

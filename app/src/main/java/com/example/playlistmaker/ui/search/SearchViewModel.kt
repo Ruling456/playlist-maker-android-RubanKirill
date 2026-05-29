@@ -1,24 +1,28 @@
 package com.example.playlistmaker.ui.search
 
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
-import com.example.playlistmaker.creator.Creator
 import com.example.playlistmaker.domain.TracksRepository
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.update
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 import java.io.IOException
 
 class SearchViewModel(
     private val tracksRepository: TracksRepository
 ) : ViewModel() {
+
     private val _searchScreenState = MutableStateFlow<SearchState>(SearchState.Initial)
     val searchScreenState = _searchScreenState.asStateFlow()
+
+    val searchHistory = tracksRepository.getSearchHistory()
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyList())
 
     private var searchJob: Job? = null
 
@@ -41,32 +45,29 @@ class SearchViewModel(
             _searchScreenState.update { SearchState.Initial }
             return
         }
-        performSearch(whatSearch)
+        viewModelScope.launch { performSearch(whatSearch) }
     }
 
-    private fun performSearch(query: String) {
-        _searchScreenState.update { SearchState.Searching }
+    fun addToHistory(query: String) {
+        if (query.isBlank()) return
         viewModelScope.launch(Dispatchers.IO) {
-            try {
-                val list = tracksRepository.searchTracks(expression = query)
-                _searchScreenState.update { SearchState.Success(list = list) }
-            } catch (e: IOException) {
-                _searchScreenState.update { SearchState.Fail(e.message.toString()) }
-            } catch (e: Exception) {
-                _searchScreenState.update { SearchState.Fail(e.message ?: "Неизвестная ошибка") }
-            }
+            tracksRepository.addToSearchHistory(query)
+        }
+    }
+
+    private suspend fun performSearch(query: String) {
+        _searchScreenState.update { SearchState.Searching }
+        try {
+            val list = tracksRepository.searchTracks(expression = query)
+            _searchScreenState.update { SearchState.Success(list = list) }
+        } catch (e: IOException) {
+            _searchScreenState.update { SearchState.Fail(e.message.toString()) }
+        } catch (e: Exception) {
+            _searchScreenState.update { SearchState.Fail(e.message ?: "Неизвестная ошибка") }
         }
     }
 
     companion object {
         private const val SEARCH_DEBOUNCE_DELAY = 2000L
-
-        fun getViewModelFactory(): ViewModelProvider.Factory =
-            object : ViewModelProvider.Factory {
-                @Suppress("UNCHECKED_CAST")
-                override fun <T : ViewModel> create(modelClass: Class<T>): T {
-                    return SearchViewModel(Creator.getTracksRepository()) as T
-                }
-            }
     }
 }
