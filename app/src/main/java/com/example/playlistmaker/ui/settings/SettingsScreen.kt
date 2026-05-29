@@ -1,40 +1,30 @@
-package com.example.playlistmaker
+package com.example.playlistmaker.ui.settings
 
 import android.content.Intent
-import android.os.Bundle
-import androidx.activity.ComponentActivity
-import androidx.activity.compose.setContent
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.HeadsetMic
-import androidx.compose.material.icons.filled.Share
-import androidx.compose.material3.Text
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.unit.sp
-
 import android.net.Uri
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
+import androidx.compose.material.icons.filled.HeadsetMic
+import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.example.playlistmaker.ui.theme.PlaylistMakerTheme
+import com.example.playlistmaker.R
 
-
-sealed class SettingsItemType{
+sealed class SettingsItemType {
     object Switch : SettingsItemType()
     data class IconButton(val icon: ImageVector) : SettingsItemType()
     object Arrow : SettingsItemType()
@@ -46,26 +36,12 @@ data class SettingsMenuItem(
     val type: SettingsItemType
 )
 
-val settingsItems = listOf(
+private val settingsItems = listOf(
     SettingsMenuItem("dark_theme", R.string.settings_dark_theme, SettingsItemType.Switch),
     SettingsMenuItem("share_app", R.string.settings_share_app, SettingsItemType.IconButton(Icons.Default.Share)),
     SettingsMenuItem("support", R.string.settings_support, SettingsItemType.IconButton(Icons.Default.HeadsetMic)),
     SettingsMenuItem("user_agreement", R.string.settings_user_agreement, SettingsItemType.Arrow)
 )
-
-
-//class SettingsActivity : ComponentActivity() {
-//    override fun onCreate(savedInstanceState: Bundle?) {
-//        super.onCreate(savedInstanceState)
-//        setContent {
-//            PlaylistMakerTheme {
-//                SettingsScreen( onBackPressed = { finish() } )
-//            }
-//        }
-//    }
-//}
-
-
 
 @Composable
 fun SettingsScreen(onBackPressed: () -> Unit) {
@@ -85,7 +61,6 @@ fun SettingsScreen(onBackPressed: () -> Unit) {
             .statusBarsPadding()
             .padding(horizontal = 16.dp)
     ) {
-
         Row(
             modifier = Modifier.fillMaxWidth().height(56.dp),
             verticalAlignment = Alignment.CenterVertically
@@ -124,7 +99,6 @@ fun SettingsScreen(onBackPressed: () -> Unit) {
                                     putExtra(Intent.EXTRA_SUBJECT, supportSubject)
                                     putExtra(Intent.EXTRA_TEXT, supportBody)
                                 }
-
                                 if (intent.resolveActivity(context.packageManager) != null) {
                                     context.startActivity(intent)
                                 } else {
@@ -145,7 +119,7 @@ fun SettingsScreen(onBackPressed: () -> Unit) {
 }
 
 @Composable
-fun SettingsRow(
+private fun SettingsRow(
     item: SettingsMenuItem,
     isDarkTheme: Boolean,
     onThemeChanged: (Boolean) -> Unit,

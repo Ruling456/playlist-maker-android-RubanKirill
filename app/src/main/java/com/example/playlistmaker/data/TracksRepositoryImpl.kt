@@ -1,30 +1,70 @@
 package com.example.playlistmaker.data
 
+import com.example.playlistmaker.data.db.SearchHistoryEntity
+import com.example.playlistmaker.data.db.SearchHistoryDao
+import com.example.playlistmaker.data.db.TrackDao
+import com.example.playlistmaker.data.db.toEntity
 import com.example.playlistmaker.domain.NetworkClient
 import com.example.playlistmaker.domain.Track
 import com.example.playlistmaker.domain.TracksRepository
-import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 
-class TracksRepositoryImpl(private val networkClient: NetworkClient) : TracksRepository {
+class TracksRepositoryImpl(
+    private val trackDao: TrackDao,
+    private val searchHistoryDao: SearchHistoryDao,
+    private val networkClient: NetworkClient
+) : TracksRepository {
 
-    private val mockedTracks = listOf(
-        Track("0", "Владивосток 2000", "Мумий Тролль", "2:38", ""),
-        Track("1", "Группа крови", "Кино", "4:43", ""),
-        Track("52", "Не смотри назад", "Ария", "5:12", ""),
-        Track("7", "Звезда по имени Солнце", "Кино", "3:45", ""),
-        Track("5", "Лондон", "Аквариум", "4:32", ""),
-        Track("775577", "На заре", "Альянс", "3:50", ""),
-        Track("5575", "Перемен", "Кино", "4:56", ""),
-        Track("7575", "Розовый фламинго", "Сплин", "3:15", ""),
-        Track("777", "Танцевать", "Мельница", "3:42", ""),
-        Track("555", "Чёрный бумер", "Серёга", "4:01", "")
-    )
+    private val searchCache = mutableMapOf<String, Track>()
 
     override suspend fun searchTracks(expression: String): List<Track> {
-        delay(1000)
-        return mockedTracks.filter { track ->
-            track.trackName.contains(expression, ignoreCase = true) ||
-            track.artistName.contains(expression, ignoreCase = true)
+        val response = networkClient.doRequest(TracksSearchRequest(expression))
+        return if (response is TracksSearchResponse && response.resultCode == 200) {
+            val tracks = response.results.map { it.toTrack() }
+            tracks.forEach { searchCache[it.trackId] = it }
+            tracks
+        } else {
+            emptyList()
         }
+    }
+
+    override suspend fun getTrackById(id: String): Track? {
+        return trackDao.getTrackById(id)?.toDomain() ?: searchCache[id]
+    }
+
+    override fun getTrackByNameAndArtist(track: Track): Flow<Track?> {
+        return trackDao.getTrackByNameAndArtist(track.trackName, track.artistName)
+            .map { it?.toDomain() }
+    }
+
+    override fun getFavoriteTracks(): Flow<List<Track>> {
+        return trackDao.getFavoriteTracks().map { list -> list.map { it.toDomain() } }
+    }
+
+    override suspend fun insertTrackToPlaylist(track: Track, playlistId: Long) {
+        trackDao.upsertTrack(track.copy(playlistId = playlistId).toEntity())
+    }
+
+    override suspend fun deleteTrackFromPlaylist(track: Track) {
+        trackDao.removeFromPlaylist(track.trackId)
+    }
+
+    override suspend fun updateTrackFavoriteStatus(track: Track, isFavorite: Boolean) {
+        trackDao.upsertTrack(track.copy(favorite = isFavorite).toEntity())
+    }
+
+    override suspend fun deleteTracksByPlaylistId(playlistId: Long) {
+        trackDao.deleteNonFavoriteTracksByPlaylistId(playlistId)
+        trackDao.clearPlaylistIdForFavoriteTracks(playlistId)
+    }
+
+    override suspend fun addToSearchHistory(query: String) {
+        searchHistoryDao.deleteByQuery(query)
+        searchHistoryDao.insert(SearchHistoryEntity(query = query))
+    }
+
+    override fun getSearchHistory(): Flow<List<String>> {
+        return searchHistoryDao.getRecentHistory().map { list -> list.map { it.query } }
     }
 }
